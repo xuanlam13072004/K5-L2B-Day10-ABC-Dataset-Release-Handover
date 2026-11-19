@@ -1,0 +1,119 @@
+{
+  "seed": 9007,
+  "task": "release",
+  "errors": [
+    {
+      "type": "thing_overlap",
+      "target": "000000016249",
+      "unit": "image"
+    },
+    {
+      "type": "missing_box",
+      "target": "000000025386",
+      "unit": "image",
+      "removed_class": "chair"
+    },
+    {
+      "type": "scene_leak",
+      "target": "scene_818",
+      "unit": "scene",
+      "image": "000000007977"
+    },
+    {
+      "type": "bbox_out_of_bounds",
+      "target": "000000022935",
+      "unit": "image"
+    },
+    {
+      "type": "wrong_hash",
+      "target": "000000011760",
+      "unit": "image"
+    },
+    {
+      "type": "guideline_mismatch",
+      "target": "000000012120",
+      "unit": "image"
+    },
+    {
+      "type": "missing_image",
+      "target": "000000024610",
+      "unit": "image"
+    },
+    {
+      "type": "guideline_mismatch",
+      "target": "000000013177",
+      "unit": "image"
+    },
+    {
+      "type": "class_swap",
+      "target": "000000002923",
+      "unit": "image",
+      "from_class": "boat",
+      "to_class": "broccoli"
+    },
+    {
+      "type": "bbox_out_of_bounds",
+      "target": "000000011197",
+      "unit": "image"
+    },
+    {
+      "type": "duplicate_box",
+      "target": "000000008277",
+      "unit": "image"
+    },
+    {
+      "type": "instance_merge",
+      "target": "000000012748",
+      "unit": "image"
+    },
+    {
+      "type": "invalid_class",
+      "target": "000000020571",
+      "unit": "image"
+    },
+    {
+      "type": "category_swap",
+      "target": "000000016502",
+      "unit": "image",
+      "from_class": "sheep",
+      "to_class": "sink"
+    },
+    {
+      "type": "invalid_class",
+      "target": "000000013774",
+      "unit": "image"
+    },
+    {
+      "type": "wrong_hash",
+      "target": "000000024144",
+      "unit": "image"
+    },
+    {
+      "type": "bbox_drift",
+      "target": "000000014831",
+      "unit": "image"
+    },
+    {
+      "type": "thing_overlap",
+      "target": "000000023781",
+      "unit": "image"
+    },
+    {
+      "type": "invalid_category_id",
+      "target": "000000009590",
+      "unit": "image"
+    },
+    {
+      "type": "class_swap",
+      "target": "000000012639",
+      "unit": "image",
+      "from_class": "person",
+      "to_class": "dog"
+    },
+    {
+      "type": "instance_merge",
+      "target": "000000001818",
+      "unit": "image"
+    }
+  ]
+}

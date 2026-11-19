@@ -1,0 +1,11 @@
+job_id,annotator,reviewer,guideline
+J01,A03,Q03,v1.2
+J02,A03,Q01,v1.2
+J03,A05,Q01,v1.2
+J04,A03,Q02,v1.3
+J05,A02,Q02,v1.3
+J06,A03,Q01,v1.3
+J07,A01,Q03,v1.3
+J08,A02,Q02,v1.3
+J09,A04,Q03,v1.3
+J10,A04,Q02,v1.3

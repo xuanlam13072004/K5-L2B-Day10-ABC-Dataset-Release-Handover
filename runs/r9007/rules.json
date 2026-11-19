@@ -1,0 +1,28 @@
+{
+ "errors": [
+  {
+   "type": "guideline_mismatch",
+   "target": "000000012120"
+  },
+  {
+   "type": "guideline_mismatch",
+   "target": "000000013177"
+  },
+  {
+   "type": "missing_image",
+   "target": "000000024610"
+  },
+  {
+   "type": "scene_leak",
+   "target": "scene_818"
+  },
+  {
+   "type": "wrong_hash",
+   "target": "000000011760"
+  },
+  {
+   "type": "wrong_hash",
+   "target": "000000024144"
+  }
+ ]
+}

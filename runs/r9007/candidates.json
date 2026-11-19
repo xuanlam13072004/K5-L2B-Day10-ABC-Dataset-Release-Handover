@@ -1,0 +1,279 @@
+{
+ "note": "ỨNG VIÊN, chưa phải lỗi: mở ảnh xem rồi ghi review_log.csv",
+ "rules_detail": [
+  {
+   "type": "wrong_hash",
+   "target": "000000011760",
+   "why": "sha256 tính lại khác manifest"
+  },
+  {
+   "type": "wrong_hash",
+   "target": "000000024144",
+   "why": "sha256 tính lại khác manifest"
+  },
+  {
+   "type": "missing_image",
+   "target": "000000024610",
+   "why": "không thấy images/000000024610.jpg"
+  },
+  {
+   "type": "guideline_mismatch",
+   "target": "000000012120",
+   "why": "ảnh ghi v1.2, job J05 ghi v1.3"
+  },
+  {
+   "type": "guideline_mismatch",
+   "target": "000000013177",
+   "why": "ảnh ghi v1.2, job J06 ghi v1.3"
+  },
+  {
+   "type": "scene_leak",
+   "target": "scene_818",
+   "why": "cảnh nằm ở ['train', 'val']; ảnh lệch: ['000000007977']"
+  }
+ ],
+ "scene_leak": {
+  "scene_818": {
+   "majority_split": "train",
+   "odd_images": [
+    "000000007977"
+   ]
+  }
+ },
+ "candidates": [
+  {
+   "image": "000000001761.jpg",
+   "type": "bbox_drift",
+   "det_class": "person",
+   "panoptic_class": "person",
+   "bbox": [
+    36.2,
+    625.7,
+    41.0,
+    633.0
+   ],
+   "iou": 0.91,
+   "mask_in_box": 0.762,
+   "note": "Box lệch khỏi mask person (mask_in_box=0.76, IoU=0.91)"
+  },
+  {
+   "image": "000000001818.jpg",
+   "type": "bbox_drift",
+   "det_class": "zebra",
+   "panoptic_class": "zebra",
+   "bbox": [
+    178.0,
+    1.4,
+    640.0,
+    425.0
+   ],
+   "iou": 0.721,
+   "mask_in_box": 0.711,
+   "note": "Box lệch khỏi mask zebra (mask_in_box=0.71, IoU=0.72)"
+  },
+  {
+   "image": "000000002923.jpg",
+   "type": "class_swap",
+   "det_class": "broccoli",
+   "panoptic_class": "boat",
+   "bbox": [
+    246.2,
+    189.1,
+    309.1,
+    206.2
+   ],
+   "iou": 0.973,
+   "mask_in_box": 0.962,
+   "note": "Lệch lớp (IoU=0.97): det=broccoli vs panoptic=boat"
+  },
+  {
+   "image": "000000003255.jpg",
+   "type": "bbox_drift",
+   "det_class": "skis",
+   "panoptic_class": "skis",
+   "bbox": [
+    276.1,
+    353.1,
+    290.7,
+    358.0
+   ],
+   "iou": 0.944,
+   "mask_in_box": 0.794,
+   "note": "Box lệch khỏi mask skis (mask_in_box=0.79, IoU=0.94)"
+  },
+  {
+   "image": "000000006471.jpg",
+   "type": "bbox_drift",
+   "det_class": "bottle",
+   "panoptic_class": "bottle",
+   "bbox": [
+    147.2,
+    103.0,
+    152.6,
+    118.7
+   ],
+   "iou": 0.871,
+   "mask_in_box": 0.778,
+   "note": "Box lệch khỏi mask bottle (mask_in_box=0.78, IoU=0.87)"
+  },
+  {
+   "image": "000000007108.jpg",
+   "type": "instance_merge",
+   "det_class": "elephant",
+   "panoptic_class": "elephant",
+   "bbox": [
+    401.0,
+    77.0,
+    631.0,
+    426.0
+   ],
+   "note": "1 segment elephant phủ 2 box detection tách biệt"
+  },
+  {
+   "image": "000000011197.jpg",
+   "type": "bbox_drift",
+   "det_class": "bicycle",
+   "panoptic_class": "bicycle",
+   "bbox": [
+    554.0,
+    162.4,
+    640.0,
+    191.2
+   ],
+   "iou": 0.544,
+   "mask_in_box": 1.0,
+   "note": "Box lệch khỏi mask bicycle (mask_in_box=1.00, IoU=0.54)"
+  },
+  {
+   "image": "000000012639.jpg",
+   "type": "class_swap",
+   "det_class": "dog",
+   "panoptic_class": "person",
+   "bbox": [
+    327.4,
+    170.8,
+    359.6,
+    220.4
+   ],
+   "iou": 0.961,
+   "mask_in_box": 0.999,
+   "note": "Lệch lớp (IoU=0.96): det=dog vs panoptic=person"
+  },
+  {
+   "image": "000000013546.jpg",
+   "type": "bbox_drift",
+   "det_class": "skateboard",
+   "panoptic_class": "skateboard",
+   "bbox": [
+    456.3,
+    99.3,
+    467.3,
+    101.9
+   ],
+   "iou": 0.788,
+   "mask_in_box": 0.733,
+   "note": "Box lệch khỏi mask skateboard (mask_in_box=0.73, IoU=0.79)"
+  },
+  {
+   "image": "000000013729.jpg",
+   "type": "bbox_drift",
+   "det_class": "remote",
+   "panoptic_class": "remote",
+   "bbox": [
+    246.6,
+    261.2,
+    262.3,
+    266.5
+   ],
+   "iou": 0.844,
+   "mask_in_box": 0.768,
+   "note": "Box lệch khỏi mask remote (mask_in_box=0.77, IoU=0.84)"
+  },
+  {
+   "image": "000000014831.jpg",
+   "type": "bbox_drift",
+   "det_class": "cat",
+   "panoptic_class": "cat",
+   "bbox": [
+    59.2,
+    240.3,
+    480.0,
+    596.9
+   ],
+   "iou": 0.776,
+   "mask_in_box": 0.786,
+   "note": "Box lệch khỏi mask cat (mask_in_box=0.79, IoU=0.78)"
+  },
+  {
+   "image": "000000015517.jpg",
+   "type": "bbox_drift",
+   "det_class": "bus",
+   "panoptic_class": "bus",
+   "bbox": [
+    182.4,
+    270.2,
+    254.0,
+    278.1
+   ],
+   "iou": 0.946,
+   "mask_in_box": 0.786,
+   "note": "Box lệch khỏi mask bus (mask_in_box=0.79, IoU=0.95)"
+  },
+  {
+   "image": "000000016010.jpg",
+   "type": "instance_merge",
+   "det_class": "zebra",
+   "panoptic_class": "zebra",
+   "bbox": [
+    359.0,
+    267.0,
+    447.0,
+    325.0
+   ],
+   "note": "1 segment zebra phủ 2 box detection tách biệt"
+  },
+  {
+   "image": "000000016502.jpg",
+   "type": "class_swap",
+   "det_class": "sheep",
+   "panoptic_class": "sink",
+   "bbox": [
+    75.2,
+    237.9,
+    183.6,
+    314.9
+   ],
+   "iou": 0.992,
+   "mask_in_box": 1.0,
+   "note": "Lệch lớp (IoU=0.99): det=sheep vs panoptic=sink"
+  },
+  {
+   "image": "000000017182.jpg",
+   "type": "instance_merge",
+   "det_class": "book",
+   "panoptic_class": "book",
+   "bbox": [
+    241.0,
+    231.0,
+    299.0,
+    306.0
+   ],
+   "note": "1 segment book phủ 2 box detection tách biệt"
+  },
+  {
+   "image": "000000023781.jpg",
+   "type": "bbox_drift",
+   "det_class": "carrot",
+   "panoptic_class": "carrot",
+   "bbox": [
+    377.5,
+    313.0,
+    492.8,
+    373.5
+   ],
+   "iou": 0.38,
+   "mask_in_box": 0.31,
+   "note": "Box lệch khỏi mask carrot (mask_in_box=0.31, IoU=0.38)"
+  }
+ ]
+}
