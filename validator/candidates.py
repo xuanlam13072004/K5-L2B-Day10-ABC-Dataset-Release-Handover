@@ -1,3 +1,4 @@
+# Doi chieu Detection-Panoptic qua IoU, mask_in_box va loc bo skip_images
 """Đối chiếu nhãn Detection (YOLO) và Panoptic mask để sinh candidates.json.
 
 Chỉ sử dụng thư viện chuẩn của Python và scripts/pngutil.py.
