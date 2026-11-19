@@ -15,6 +15,10 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+# Dung sai 0,5 pixel: toạ độ YOLO được làm tròn 6 chữ số, box sát mép tự nhiên có thể
+# vượt mép một phần nghìn pixel. Không có dung sai thì lô sạch bị báo 11 lỗi giả.
+TOL_PX = 0.5
+
 
 def _image_dimensions(L: dict) -> dict[str, tuple[int, int]]:
     """Return {image_stem: (width, height)} from panoptic.json images."""
@@ -84,7 +88,7 @@ def _check_one_image(name: str, item: dict, dimensions: dict[str, tuple[int, int
         x2 = (xc + box_width / 2.0) * image_width
         y2 = (yc + box_height / 2.0) * image_height
         if (box_width <= 0 or box_height <= 0 or
-                x1 < 0 or y1 < 0 or x2 > image_width or y2 > image_height):
+                x1 < -TOL_PX or y1 < -TOL_PX or x2 > image_width + TOL_PX or y2 > image_height + TOL_PX):
             errors.append({"type": "bbox_out_of_bounds", "target": name})
             break
 
