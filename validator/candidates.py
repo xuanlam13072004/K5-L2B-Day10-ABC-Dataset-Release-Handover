@@ -77,7 +77,7 @@ def _read_yolo_boxes(
     label_path: Path, width: int, height: int, id_to_name: dict[int, str]
 ) -> list[dict]:
     boxes: list[dict] = []
-    if not label_path.exists():
+    if not label_path.is_file():
         return boxes
     for idx, line in enumerate(label_path.read_text(encoding="utf-8").splitlines()):
         parts = line.strip().split()
@@ -116,7 +116,6 @@ def _extract_thing_segments(
 ) -> tuple[int, int, list[dict]]:
     width, height, pixels = read_rgb(mask_path)
 
-    # Lọc các segment là "thing" (tên lớp nằm trong classes.txt) và không phải crowd
     valid_meta: dict[int, dict] = {}
     for seg in segments_info:
         seg_id = int(seg["id"])
@@ -173,16 +172,14 @@ def _extract_thing_segments(
     return width, height, segments
 
 
-def find_candidates(delivery_dir: str | Path) -> list[dict]:
-    """Quét thư mục delivery và trả về danh sách ứng viên lỗi gán nhãn."""
-    delivery = Path(delivery_dir)
-    id_to_name = _load_classes(delivery / "classes.txt")
+def build(L: dict, skip_images: set[str] | None = None) -> list[dict]:
+    """Hàm chuẩn được gọi từ validate.py: đối chiếu det <-> panoptic trên dữ liệu L."""
+    delivery: Path = L["dir"]
+    id_to_name: dict[int, str] = L["classes"]
     yolo_names = set(id_to_name.values())
-
-    panoptic_path = delivery / "panoptic.json"
-    if not panoptic_path.exists():
-        return []
-    panoptic_data = json.loads(panoptic_path.read_text(encoding="utf-8"))
+    panoptic_data: dict = L["pan"]
+    manifest: dict = L.get("man", {})
+    skip = skip_images or set()
 
     cat_id_to_name = {
         int(c["id"]): str(c["name"]).strip()
@@ -195,16 +192,25 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
     candidates: list[dict] = []
 
     for img_info in sorted(panoptic_data.get("images", []), key=lambda x: x["file_name"]):
+        file_name = img_info["file_name"]
+        stem = Path(file_name).stem
+
+        # Bỏ qua ảnh đã bị lỗi luật (missing_image, wrong_hash, scene_leak, ...)
+        if file_name in skip or stem in skip:
+            continue
+
         img_id = int(img_info["id"])
-        stem = Path(img_info["file_name"]).stem
         ann = ann_by_image_id.get(img_id)
         if ann is None:
             continue
 
-        mask_file = ann.get("file_name", f"{stem}.png")
-        mask_path = delivery / "masks" / mask_file
-        label_path = delivery / "labels" / f"{stem}.txt"
-        if not mask_path.exists() or not label_path.exists():
+        man_item = manifest.get(file_name, {})
+        mask_rel = man_item.get("mask") or f"masks/{ann.get('file_name', f'{stem}.png')}"
+        label_rel = man_item.get("label") or f"labels/{stem}.txt"
+
+        mask_path = delivery / mask_rel
+        label_path = delivery / label_rel
+        if not mask_path.is_file() or not label_path.is_file():
             continue
 
         width, height, segments = _extract_thing_segments(
@@ -214,7 +220,6 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
         img_area = float(width * height)
 
         # Tính ma trận đối chiếu pixel giữa từng segment và từng det_box
-        # seg_stats[s_idx][d_idx] = (in_box_px, mask_in_box_ratio, box_fill_ratio, bbox_iou)
         seg_stats: list[list[tuple[int, float, float, float]]] = []
         for seg in segments:
             row_stats: list[tuple[int, float, float, float]] = []
@@ -243,7 +248,6 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
                     matched_dets.append((d_idx, m_ratio, b_fill))
 
             if len(matched_dets) >= 2:
-                # Đảm bảo ít nhất 2 box detection không đè lên nhau (tránh nhầm duplicate_box)
                 has_distinct_pair = False
                 for i in range(len(matched_dets)):
                     for j in range(i + 1, len(matched_dets)):
@@ -258,7 +262,7 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
                     merged_seg_indices.add(s_idx)
                     image_candidates.append(
                         {
-                            "image": stem,
+                            "image": file_name,
                             "type": "instance_merge",
                             "det_class": seg["class_name"],
                             "panoptic_class": seg["class_name"],
@@ -271,7 +275,6 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
         for s_idx, seg in enumerate(segments):
             if s_idx in merged_seg_indices or not det_boxes:
                 continue
-            # Tìm box detection khớp nhất với segment này
             best_d_idx = max(
                 range(len(det_boxes)),
                 key=lambda d: (seg_stats[s_idx][d][3], seg_stats[s_idx][d][1]),
@@ -283,7 +286,7 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
                 if m_ratio >= SWAP_MASK_IN_BOX_MIN and iou >= SWAP_IOU_MIN:
                     image_candidates.append(
                         {
-                            "image": stem,
+                            "image": file_name,
                             "type": "class_swap",
                             "det_class": det["class_name"],
                             "panoptic_class": seg["class_name"],
@@ -297,7 +300,7 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
                 if iou >= DRIFT_IOU_MIN and (m_ratio < DRIFT_MASK_IN_BOX_MAX or iou < DRIFT_IOU_MAX):
                     image_candidates.append(
                         {
-                            "image": stem,
+                            "image": file_name,
                             "type": "bbox_drift",
                             "det_class": det["class_name"],
                             "panoptic_class": seg["class_name"],
@@ -319,7 +322,7 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
             if max_m_ratio < MISSING_MAX_OVERLAP:
                 image_candidates.append(
                     {
-                        "image": stem,
+                        "image": file_name,
                         "type": "missing_box",
                         "det_class": None,
                         "panoptic_class": seg["class_name"],
@@ -329,7 +332,7 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
                     }
                 )
 
-        # Đề bài: mỗi ảnh mang tối đa 1 lỗi -> giữ ứng viên nổi bật nhất nếu 1 ảnh có nhiều dấu hiệu
+        # Mỗi ảnh mang tối đa 1 lỗi -> giữ ứng viên nổi bật nhất
         if image_candidates:
             priority = {
                 "class_swap": 1,
@@ -341,6 +344,21 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
             candidates.append(image_candidates[0])
 
     return candidates
+
+
+def find_candidates(delivery_dir: str | Path) -> list[dict]:
+    """Hàm hỗ trợ chạy độc lập bằng CLI khi không truyền qua validate.py."""
+    delivery = Path(delivery_dir)
+    panoptic_path = delivery / "panoptic.json"
+    if not panoptic_path.is_file():
+        return []
+    L = {
+        "dir": delivery,
+        "classes": _load_classes(delivery / "classes.txt"),
+        "pan": json.loads(panoptic_path.read_text(encoding="utf-8")),
+        "man": {},
+    }
+    return build(L, set())
 
 
 def main() -> None:
