@@ -1,0 +1,7 @@
+image,type,annotator,reviewer,action
+000000008277,duplicate_box,A03,Q02,remove_duplicate_box_and_rework
+000000011197,bbox_out_of_bounds,A02,Q02,fix_bbox_bounds_and_rework
+000000013774,invalid_class,A03,Q01,fix_invalid_class_and_rework
+000000020571,invalid_class,A04,Q03,fix_invalid_class_and_rework
+000000022935,bbox_out_of_bounds,A04,Q03,fix_bbox_bounds_and_rework
+000000024610,missing_image,A04,Q02,restore_missing_image_and_rework

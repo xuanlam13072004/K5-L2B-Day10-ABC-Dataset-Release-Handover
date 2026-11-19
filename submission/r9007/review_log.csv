@@ -1,0 +1,15 @@
+image,type,verdict,note
+000000011197,bbox_out_of_bounds,rejected,Kiem tra ca 01 loi bbox_out_of_bounds tren doi tuong 000000011197 trong lo lab250_79c4d088f4c4
+000000022935,bbox_out_of_bounds,rejected,Kiem tra ca 02 loi bbox_out_of_bounds tren doi tuong 000000022935 trong lo lab250_79c4d088f4c4
+000000008277,duplicate_box,rejected,Kiem tra ca 03 loi duplicate_box tren doi tuong 000000008277 trong lo lab250_79c4d088f4c4
+000000012120,guideline_mismatch,rejected,Kiem tra ca 04 loi guideline_mismatch tren doi tuong 000000012120 trong lo lab250_79c4d088f4c4
+000000013177,guideline_mismatch,rejected,Kiem tra ca 05 loi guideline_mismatch tren doi tuong 000000013177 trong lo lab250_79c4d088f4c4
+000000009590,invalid_category_id,rejected,Kiem tra ca 06 loi invalid_category_id tren doi tuong 000000009590 trong lo lab250_79c4d088f4c4
+000000013774,invalid_class,rejected,Kiem tra ca 07 loi invalid_class tren doi tuong 000000013774 trong lo lab250_79c4d088f4c4
+000000020571,invalid_class,rejected,Kiem tra ca 08 loi invalid_class tren doi tuong 000000020571 trong lo lab250_79c4d088f4c4
+000000024610,missing_image,rejected,Kiem tra ca 09 loi missing_image tren doi tuong 000000024610 trong lo lab250_79c4d088f4c4
+scene_818,scene_leak,rejected,Kiem tra ca 10 loi scene_leak tren doi tuong scene_818 trong lo lab250_79c4d088f4c4
+000000016249,thing_overlap,rejected,Kiem tra ca 11 loi thing_overlap tren doi tuong 000000016249 trong lo lab250_79c4d088f4c4
+000000023781,thing_overlap,rejected,Kiem tra ca 12 loi thing_overlap tren doi tuong 000000023781 trong lo lab250_79c4d088f4c4
+000000011760,wrong_hash,rejected,Kiem tra ca 13 loi wrong_hash tren doi tuong 000000011760 trong lo lab250_79c4d088f4c4
+000000024144,wrong_hash,rejected,Kiem tra ca 14 loi wrong_hash tren doi tuong 000000024144 trong lo lab250_79c4d088f4c4
