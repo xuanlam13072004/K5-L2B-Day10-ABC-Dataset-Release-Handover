@@ -315,7 +315,13 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
             total_px = seg["pixel_count"]
             if total_px < MISSING_MIN_AREA or (total_px / img_area) < MISSING_MIN_REL_AREA:
                 continue
-            max_m_ratio = max((seg_stats[s_idx][d][1] for d in range(len(det_boxes))), default=0.0)
+            # Chỉ xét box CÙNG LỚP: box của vật khác lớp phủ lên (vd. người đứng trước ô tô)
+            # không có nghĩa là segment này đã có box.
+            max_m_ratio = max(
+                (seg_stats[s_idx][d][1] for d in range(len(det_boxes))
+                 if det_boxes[d]["class_name"] == seg["class_name"]),
+                default=0.0,
+            )
             if max_m_ratio < MISSING_MAX_OVERLAP:
                 image_candidates.append(
                     {
@@ -341,6 +347,15 @@ def find_candidates(delivery_dir: str | Path) -> list[dict]:
             candidates.append(image_candidates[0])
 
     return candidates
+
+
+def build(L: dict, skip: set) -> list[dict]:
+    """Giao diện với validator/validate.py.
+
+    L["dir"] là thư mục delivery; skip là tập ảnh đã có lỗi luật. Đề cho mỗi ảnh mang
+    tối đa một lỗi, nên ảnh đã có lỗi luật không sinh thêm ứng viên gán nhãn.
+    """
+    return [c for c in find_candidates(L["dir"]) if c["image"] not in skip]
 
 
 def main() -> None:
