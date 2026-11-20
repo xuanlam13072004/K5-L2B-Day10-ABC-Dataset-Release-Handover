@@ -1,21 +1,23 @@
-# Báo cáo nhóm <<XX>>
-
+# Báo cáo nhóm 9007
 ## 1. Số liệu luyện tập
-- F1 theo seed (rule / cross_check / overall): <<seed: ... / ... / ...>>
-- Số ứng viên trên lô sạch (`--no-faults`): <<...>>; hàng đợi trên seed luyện tập: <<... ảnh>>
-- Ngưỡng đã chọn và cách chọn (không dùng `_private`): <<...>>
-
+- F1 theo seed (rule / cross_check / overall): `seed 9007: ~0.9 / ~0.5 / ~0.8` (truy vết đạt `1.0` ở cả `tier_a`, `tier_b`, `notify`)
+- Số ứng viên trên lô sạch (`--no-faults`): **4 ứng viên** (`0` lỗi luật); hàng đợi trên seed luyện tập (`r9007`): **16 ảnh** (sau khi xem ảnh thực tế: xác nhận **6 lỗi** gán nhãn, loại bỏ **10 ca** dương tính giả)
+- Ngưỡng đã chọn và cách chọn (không dùng `_private`): Các ngưỡng đối chiếu detection ↔ panoptic trong `validator/candidates.py` (`SWAP_MASK_IN_BOX_MIN = 0.70   # Tối thiểu 70% pixel của mask nằm trong box detection`; `SWAP_IOU_MIN = 0.55           # IoU giữa box detection và bbox của mask >= 0.55`; `DRIFT_IOU_MIN = 0.25          # Vẫn phải là cùng 1 vật thể (IoU >= 0.25)`; `DRIFT_MASK_IN_BOX_MAX = 0.80  # Nhưng có >20% pixel mask bị tràn ra ngoài box`; `DRIFT_IOU_MAX = 0.62          # Hoặc khung box bị kéo giãn/lệch hẳn so với mask`; `MERGE_BOX_FILL_MIN = 0.55     # Ít nhất 55% diện tích mỗi box detection chứa pixel của cùng 1 segment`) được tinh chỉnh qua 2 bước: (1) kiểm thử trên lô sạch (`inject_release.py --no-faults`) để đảm bảo không phát sinh lỗi luật giả (`0` lỗi) và giữ nhiễu tự nhiên ở mức thấp (4 ứng viên); (2) vẽ trực quan bbox/mask trên tập luyện tập `r9007` để rà soát bằng mắt thường, điều chỉnh ngưỡng IoU và độ lệch tâm nhằm gom đủ ca lệch nhãn rõ rệt mà không làm phình hàng đợi kiểm tra, tuyệt đối không mở `_private`.
 ## 2. Vì sao báo hết ứng viên làm F1 giảm?
-<<Trả lời bằng số của nhóm.>>
-
+Trên seed `9007`, hàng đợi ứng viên (`candidates.json`) gồm **16 ca**, nhưng qua mở ảnh kiểm chứng trực tiếp (`review_log.csv`) chỉ có **6 ca** là lỗi gán nhãn thực sự (`confirmed`) và **10 ca** là gán nhãn đúng (`rejected` — do vật thể bị che khuất một phần khiến bbox detection và segment panoptic lệch IoU tự nhiên).
+- **Khi lọc bằng mắt thường (chỉ đưa 6 ca `confirmed` vào `errors.json`):** `errors.json` gồm **22 lỗi** (`TP = 22`, `FP = 0`), giữ $\text{Precision} = 100\%$.
+- **Nếu báo toàn bộ 16 ứng viên vào `errors.json` không qua lọc:** Sẽ đưa thêm **10 ca dương tính giả (`FP = 10`)** vào kết quả cuối cùng (tổng báo 32 lỗi nhưng chỉ 22 lỗi đúng), làm $\text{Precision}$ giảm từ $22/22 = 100\%$ xuống còn $22/32 = 68,75\%$, kéo chỉ số điều hòa $\text{F1} = \frac{2 \cdot P \cdot R}{P + R}$ giảm mạnh dù $\text{Recall}$ không đổi.
 ## 3. Quyết định và lineage
-<<QC v1 a/b, kết luận, vì sao R-021 phải xem lại hoặc train lại.>>
-
+- **QC v1 & Kết luận:** Lô `lab250_79c4d888f4c4` (v1) có **22/250 = 8,8%** ảnh/cảnh lỗi, vượt ngưỡng cho phép **2%** (tối đa 5 lỗi/250 ảnh). Nhóm ghi quyết định **HOLD** cho bản v1 trong `lineage.jsonl` và tạo lô bàn giao sạch `lab250_79c4d888f4c4_v2` (**240 ảnh**, **1.626 nhãn**; tách **10 ảnh** lỗi detection/thiếu file sang `rework_queue.csv`; sửa `scene_leak` ở `scene_818`, đồng bộ `guideline_mismatch` theo `jobs.csv`, tính lại `sha256` cho 2 ảnh `wrong_hash` nguyên vẹn và giữ lại **7 ảnh** chỉ lỗi panoptic kèm ghi chú báo team panoptic).
+- **Vì sao `R-021` phải xem lại hoặc train lại:** Theo lịch sử `lineage.jsonl`, lần chạy huấn luyện/đánh giá `R-021` sử dụng trực tiếp lô `lab250_79c4d888f4c4` (v1) đã bị gắn cờ `HOLD`. Lô v1 này vừa chứa nhãn detection sai/thiếu file ảnh, vừa bị rò rỉ dữ liệu cùng cảnh giữa `train` và `val` (`scene_leak`), làm sai lệch trọng số học và độ tin cậy của chỉ số đánh giá. Do đó `R-021` (`affected=True`) bắt buộc phải kiểm tra lại và train lại trên lô sạch `lab250_79c4d888f4c4_v2`.
 ## 4. Hash chứng minh gì, không chứng minh gì?
-<<>>
-
+- **Hash (SHA-256) chứng minh gì:** Chứng minh **tính toàn vẹn ở mức byte (file integrity)** và tính nhất quán phiên bản — đảm bảo file ảnh/nhãn trong quá trình lưu trữ và bàn giao không bị hỏng, cắt cụt hay chỉnh sửa nội dung so với thời điểm lập `manifest.csv` và file `.sha256` (như 2 ảnh `000000011760` và `000000024144` báo `wrong_hash` ở v1 do mã băm trong manifest không khớp bytes thực tế).
+- **Hash không chứng minh gì:** Không chứng minh **tính đúng đắn về mặt ngữ nghĩa (semantic correctness)** của dữ liệu hay nhãn gán. Một file `.txt` chứa box gán nhầm lớp (`class_swap`), lệch tọa độ (`bbox_drift`) hoặc bỏ sót đối tượng (`missing_box`) vẫn có mã SHA-256 hợp lệ nếu mã băm được tính trên chính file lỗi đó.
 ## 5. Truy vết
-<<Tiêu chí tầng a/b, vì sao lấy guideline theo job.>>
-
+- **Tiêu chí phân tầng (theo `ticket.md` và `changelog.md` đổi quy tắc lớp `cup` từ `v1.2` sang `v1.3`):**
+  - **Tầng A (`tier_a` — 4 ảnh: `000000002157`, `000000002431`, `000000002592`, `000000002685`):** Các ảnh nằm trong hai cảnh team AI đã báo lỗi (`scene_303`, `scene_859`), thuộc các job áp dụng guideline cũ `v1.2` và có chứa box detection lớp `cup`.
+  - **Tầng B (`tier_b` — 3 ảnh: `000000003661`, `000000003845`, `000000003934`):** Các ảnh thuộc các scene khác chưa được báo cáo nhưng thỏa mãn cùng điều kiện (job dùng guideline cũ `v1.2` và có chứa lớp `cup`), có rủi ro bỏ sót `cup` bị che trên 50% hoặc cắt ở mép ảnh.
+- **Thông báo (`notify`):** `A03`, `Q01` (annotator và reviewer phụ trách các job liên quan).
+- **Vì sao lấy guideline theo `jobs.csv` thay vì metadata từng ảnh:** Vì trường `guideline_version` trong `metadata.json` ở cấp từng ảnh có thể bị ghi sai hoặc không đồng bộ (chính là lỗi `guideline_mismatch` đã phát hiện ở Pha 1). Phiên bản guideline chính thức của đợt gán nhãn phải lấy từ bảng phân công gốc `jobs.csv`.
 ## 6. Bug hoặc điểm chưa rõ trong lab (nếu có)
-<<>>
+- **Chuẩn hóa định dạng trên Windows:** Khi chạy script trên Windows PowerShell, cần ép chuẩn mã hóa `UTF-8` không BOM và xuống dòng `\n` khi xuất CSV/JSON/TXT; đồng thời tên ảnh trong `review_log.csv` phải ghi dạng `stem` (không kèm đuôi `.jpg`) để khớp khóa đối chiếu trong `merge_review.py` và `check_handover.py`.
